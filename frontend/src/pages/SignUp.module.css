@@ -1,0 +1,82 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #325672, #d9e3f0);
+}
+
+.formWrapper {
+    background: rgb(234, 225, 225);
+    padding: 1vh 1%;
+    border-radius: 1vh;
+    box-shadow: 0 1vh 3vh rgba(223, 219, 219, 0.4), 0 0.5vh 1vh rgba(0, 0, 0, 0.3);
+    width: 25vw;
+}
+
+.formInput {
+    width: 100%;
+    padding: 1.2vh;
+    margin-bottom: 2vh;
+    border: 1px solid #ccc;
+    border-radius: 0.5vh;
+    font-size: 1.5vh;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.formInput:focus {
+    border-color: #007bff;
+    box-shadow: 0 0.5vh 1.5vh rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.formLabel {
+    margin-bottom: 0.15vh;
+    margin-left: 0.4vw;
+    display: block;
+    font-size: 2vh;
+    color: #0a0000;
+}
+
+.checkboxInput {
+    width: auto;
+    margin-right: 1vh;
+}
+
+.submitButton {
+    background-color: #007bff;
+    color: white;
+    font-size: 1.6vh;
+    padding: 1.2vh 2vh;
+    border: none;
+    border-radius: 0.5vh;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.submitButton:hover {
+    background-color: #0056b3;
+    box-shadow: 0 0.5vh 1vh rgba(0, 0, 0, 0.2);
+}
+
+.invalidInput {
+    border-color: red !important;
+}
+
+.errorMessage {
+    color: red;
+    font-size: 0.9em;
+}
+
+.loginLink {
+    margin-top: 2vh;
+}
+
+@media (max-width: 768px) {
+    .formWrapper {
+        width: 90%;
+        max-width: 100%;
+    }
+}
