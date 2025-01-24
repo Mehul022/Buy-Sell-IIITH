@@ -1,0 +1,113 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    /* Align content to the top */
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 2vh 1vw;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #325672, #d9e3f0);
+}
+
+h1 {
+    margin-bottom: 2vh;
+    color: #ffffff;
+    font-size: 3vh;
+    text-align: center;
+    text-shadow: 0 0.5vh 1vh rgba(0, 0, 0, 0.4);
+}
+
+.userDetails {
+    background: #ffffff;
+    padding: 2vh 2vw;
+    border-radius: 1vh;
+    box-shadow: 0 1vh 3vh rgba(0, 0, 0, 0.2);
+    width: 40vw;
+    max-width: 90%;
+    margin-top: 5vh;
+}
+
+.userDetails div {
+    margin-bottom: 1.5vh;
+    font-size: 1.8vh;
+    color: #333;
+}
+
+strong {
+    font-weight: bold;
+    color: #325672;
+}
+
+.input {
+    width: 100%;
+    padding: 1vh;
+    border: 1px solid #ccc;
+    border-radius: 0.5vh;
+    font-size: 1.5vh;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0.5vh 1.5vh rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2vh;
+}
+
+.button {
+    padding: 1vh 2vw;
+    font-size: 1.5vh;
+    border: none;
+    border-radius: 0.5vh;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.button:hover {
+    background-color: #325672;
+    color: #ffffff;
+}
+
+.saveButton {
+    background-color: #007bff;
+    color: white;
+}
+
+.saveButton:hover {
+    background-color: #0056b3;
+}
+.error {
+    text-align: center;
+    color: red;
+    font-size: 1.4vh;
+    margin-top: 2vh;
+}
+
+.loading {
+    font-size: 2vh;
+    color: #333;
+    text-align: center;
+    margin-top: 20vh;
+}
+
+@media (max-width: 768px) {
+    .userDetails {
+        width: 90%;
+    }
+
+    .input {
+        font-size: 1.2vh;
+    }
+
+    .button {
+        font-size: 1.4vh;
+        padding: 1vh 1.5vh;
+    }
+}

@@ -1,0 +1,118 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+    min-height: calc(100vh - 100px);
+}
+
+.orderList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 500px;
+    /* Set a max height for scrolling */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    padding-right: 10px;
+    /* Add padding for scrollbar */
+}
+
+/* Custom scrollbar styling */
+.orderList::-webkit-scrollbar {
+    width: 8px;
+}
+
+.orderList::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.orderList::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.orderList::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.orderCard {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    /* Prevent items from shrinking */
+}
+
+/* Rest of the previous CSS remains the same */
+.orderDetails {
+    flex-grow: 1;
+    margin-right: 20px;
+}
+
+.orderDetails p {
+    margin: 5px 0;
+    color: #333;
+}
+
+.otpSection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.otpInput {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 150px;
+    font-size: 16px;
+}
+
+.confirmButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.confirmButton:hover {
+    background-color: #45a049;
+}
+
+.errorMessage {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .orderCard {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .orderList {
+        max-height: 400px;
+        /* Slightly reduced height for mobile */
+    }
+
+    .otpSection {
+        margin-top: 15px;
+        flex-direction: column;
+    }
+
+    .otpInput,
+    .confirmButton {
+        width: 100%;
+    }
+}

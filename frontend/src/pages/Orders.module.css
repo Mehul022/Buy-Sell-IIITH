@@ -1,0 +1,138 @@
+.ordersPage {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #325672, #d9e3f0);
+}
+
+.ordersContainer {
+    flex-grow: 1;
+    padding: 2vh 2vw;
+    margin-top: 10vh;
+    max-width: 90vw;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tabNavigation {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2vh;
+}
+
+.tabNavigation button {
+    padding: 1.2vh 2.5vw;
+    margin: 0 1vw;
+    border: none;
+    background-color: rgba(224, 224, 224, 0.7);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 0.5vw;
+}
+
+.activeTab {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.ordersContent {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 1vw;
+    box-shadow: 0 0.5vh 0.7vh rgba(0, 0, 0, 0.1);
+    padding: 2vh 2vw;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.ordersList {
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+}
+
+.orderCard {
+    border: 0.1vw solid #ddd;
+    border-radius: 1vw;
+    padding: 2vh;
+    transition: box-shadow 0.3s ease;
+}
+
+.orderCard:hover {
+    box-shadow: 0 0.5vh 1vh rgba(0, 0, 0, 0.1);
+}
+
+.orderHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5vh;
+    border-bottom: 0.1vw solid #eee;
+    padding-bottom: 1vh;
+}
+
+.orderDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+}
+
+.undeliveredOrder {
+    border-left: 0.5vw solid #ff6b6b;
+}
+
+.deliveredOrder {
+    border-left: 0.5vw solid #4CAF50;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 2.5vh;
+}
+.emptyState {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+}
+
+.activeTab {
+  background-color: #333;
+  color: black;
+}
+
+.inactiveTab {
+  background-color: #f1f1f1;
+  color: white;
+}
+
+.otpHighlight {
+    background-color: rgba(255, 243, 204, 0.8);
+    border: 0.1vw solid #ffeeba;
+    border-radius: 0.5vw;
+    padding: 1.5vh;
+    margin-top: 1vh;
+    text-align: center;
+    animation: pulse 1.5s infinite;
+}
+
+.otpWarning {
+    color: #856404;
+    font-size: 1.5vh;
+    margin-top: 0.5vh;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

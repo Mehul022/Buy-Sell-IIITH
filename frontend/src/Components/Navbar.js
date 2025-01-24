@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import "./navbar.css";
 
 export default function Navbar(props) {
+    const [userName, setUserName] = useState(null);
     const navigate = useNavigate();
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/user/me', {
+                    withCredentials: true,
+                });
+                setUserName(response.data.firstName + " " + response.data.lastName);
+            } catch (error) {
+                console.error('Failed to fetch user data:', error);
+            }
+        };
+
+        fetchUserData();
+    }, []);
 
     const handleLogout = async () => {
         try {
@@ -16,87 +30,61 @@ export default function Navbar(props) {
         }
     };
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        // Add search functionality here
-    };
-
     return (
-        <div>
-            <nav className="navbar navbar-expand-lg bg-body-tertiary">
-                <div className="container-fluid">
-                    <b>{props.title}</b>
+        <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+            <div className="container-fluid px-4">
+                <Link to="/home" className="navbar-brand fw-bold">
+                    {props.title}
+                </Link>
+
+                <div className="d-flex align-items-center">
+                    {userName && (
+                        <div className="me-3">
+                            <span className="fw-semibold">{userName}</span>
+                        </div>
+                    )}
+
                     <button
                         className="navbar-toggler"
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#navbarSupportedContent"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation"
+                        data-bs-target="#navbarContent"
                     >
                         <span className="navbar-toggler-icon"></span>
                     </button>
-                    <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                        <input
-                            className="form-control me-2 search-bar"
-                            type="search"
-                            placeholder="Search"
-                            aria-label="Search"
-                            onSubmit={handleSearch}
-                        />
-                        <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li className="nav-item">
-                                <Link
-                                    className="nav-link active"
-                                    to="/home"
-                                >
-                                    Home
-                                </Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link
-                                    className="nav-link active"
-                                    to="/profile"
-                                >
-                                    Profile
-                                </Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link
-                                    className="nav-link"
-                                    to="/orders"
-                                >
-                                    Orders
-                                </Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link
-                                    className="nav-link"
-                                    to="/deliver"
-                                >
-                                    Deliver Items
-                                </Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link
-                                    className="nav-link"
-                                    to="/cart"
-                                >
-                                    My Cart
-                                </Link>
-                            </li>
+                </div>
+
+                <div className="collapse navbar-collapse" id="navbarContent">
+                    <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/home">Home</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/profile">Profile</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/orders">Orders</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/sell">Sell</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/deliver">Deliver Items</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/cart">My Cart</Link>
+                        </li>
+                        <li className="nav-item">
                             <button
-                                className="btn btn-outline-success"
+                                className="btn btn-outline-danger"
                                 onClick={handleLogout}
-                                type="button"
                             >
                                 Logout
                             </button>
-                        </ul>
-                    </div>
+                        </li>
+                    </ul>
                 </div>
-            </nav>
-        </div>
+            </div>
+        </nav>
     );
 }

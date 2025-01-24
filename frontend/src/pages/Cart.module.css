@@ -1,0 +1,143 @@
+
+
+.cartContainer h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.emptyCart {
+    text-align: center;
+    color: #666;
+    font-size: 18px;
+}
+
+.cartPage {
+    background: linear-gradient(135deg, #325672, #d9e3f0);
+    min-height: 100vh;
+    padding: 20px 20px 0;
+}
+
+.cartContainer {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    max-width: 800px;
+    margin: 80px auto 20px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cartContent {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.cartItemsList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 50vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.cartItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.itemDetails {
+    flex-grow: 1;
+}
+
+.itemDetails h3 {
+    margin: 0 0 10px;
+    color: #333;
+}
+
+.quantityControl {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quantityButton {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.quantityButton:hover {
+    background-color: #3a7bd5;
+}
+
+.quantity {
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+}
+
+.removeButton {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.removeButton:hover {
+    background-color: #c0392b;
+}
+
+.subtotal {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.cartSummary {
+    margin-top: 20px;
+    text-align: center;
+    padding: 20px;
+    background-color: #f1f1f1;
+    border-radius: 8px;
+}
+
+.placeOrderButton {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.placeOrderButton:hover {
+    background-color: #27ae60;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 24px;
+    color: white;
+}

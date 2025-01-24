@@ -1,0 +1,116 @@
+.container {
+    max-width: 35vw;
+    /* 500px equivalent */
+    margin: 0 auto;
+    margin-top: 5vh;
+    margin-bottom: 15vh;
+    padding: 2vh;
+    background-color: #ffffff;
+    border-radius: 2vh;
+    box-shadow: 0 1vh 1.6vh rgba(0, 0, 0, 0.2);
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #325672, #d9e3f0);
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 3vh;
+    font-size: 3vh;
+    color: #222222;
+    font-weight: bold;
+}
+
+.message {
+    text-align: center;
+    font-size: 2.2vh;
+    color: green;
+    margin-bottom: 2.5vh;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 3vh;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-size: 2vh;
+    margin-bottom: 1vh;
+    color: #555555;
+    font-weight: bold;
+}
+
+input,
+textarea {
+    padding: 2vh;
+    font-size: 2vh;
+    border: 0.2vh solid #cccccc;
+    border-radius: 1vh;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    background-color: #ffffff;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 15vh;
+}
+
+button {
+    padding: 2vh;
+    font-size: 2.5vh;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 1vh;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-0.5vh);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.error {
+    color: red;
+    font-size: 2vh;
+    margin-bottom: 2vh;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 4vh;
+    }
+
+    h1 {
+        font-size: 2.5vh;
+    }
+
+    button {
+        font-size: 2vh;
+        padding: 1.5vh;
+    }
+}

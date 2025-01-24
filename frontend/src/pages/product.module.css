@@ -1,0 +1,79 @@
+.container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.productDetails {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.price {
+    font-size: 1.5rem;
+    color: #2c5282;
+    font-weight: bold;
+    margin: 1rem 0;
+}
+
+.description {
+    color: #4a5568;
+    margin: 1rem 0;
+    line-height: 1.6;
+}
+
+.category {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.sellerInfo {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.addToCart {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.quantityInput {
+    width: 80px;
+    padding: 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+}
+
+.addButton {
+    padding: 0.5rem 2rem;
+    background: #2c5282;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.addButton:hover {
+    background: #2a4365;
+}
+
+.cartActions {
+    margin-top: 2rem;
+}
+
+.removeButton {
+    padding: 0.5rem 2rem;
+    background: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.removeButton:hover {
+    background: #c53030;
+}
