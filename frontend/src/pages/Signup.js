@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import ReCAPTCHA from 'react-google-recaptcha';
+import ReCAPTCHA from 'react-google-recaptcha';
 import styles from './SignUp.module.css';
 import { Link } from 'react-router-dom';
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export default function SignUp() {
     const [formData, setFormData] = useState({
@@ -15,25 +19,15 @@ export default function SignUp() {
     });
 
     const [errors, setErrors] = useState({});
-    // const [recaptchaToken, setRecaptchaToken] = useState(null);
-    // const [recaptchaKey, setRecaptchaKey] = useState(1);
+    const [recaptchaToken, setRecaptchaToken] = useState(null);
     const navigate = useNavigate();
-
-    // useEffect(() => {
-    //     const loadRecaptcha = () => {
-    //         if (window.grecaptcha) {
-    //             window.grecaptcha.ready(() => {
-    //                 setRecaptchaKey(prev => prev + 1);
-    //             });
-    //         }
-    //     };
-    //     loadRecaptcha();
-    // }, []);
-
+    const handleRecaptchaChange = (token) => {
+        setRecaptchaToken(token);
+    };
     const validateField = (name, value) => {
         switch (name) {
             case 'email':
-                const emailRegex = /^[a-zA-Z0-9._%+-]*[a-zA-Z0-9.-]+\.iiit\.ac\.in$/;
+                const emailRegex = /^[a-zA-Z0-9._%+-@]*[a-zA-Z0-9.-@]+\.iiit\.ac\.in$/;
                 return emailRegex.test(value.trim());
             case 'contactNumber':
                 const phoneRegex = /^\d{10}$/;
@@ -89,19 +83,16 @@ export default function SignUp() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        if (!recaptchaToken) {
+            setErrors(prev => ({ ...prev, submit: 'Please complete the reCAPTCHA' }));
+            return;
+        }
         const newErrors = {};
         Object.keys(formData).forEach((key) => {
             if (!validateField(key, formData[key])) {
                 newErrors[key] = getErrorMessage(key, formData[key]);
             }
         });
-
-        // if (!recaptchaToken) {
-        //     newErrors.recaptcha = 'Please complete the reCAPTCHA.';
-        //     setErrors(newErrors);
-        //     return;
-        // }
 
         if (Object.keys(newErrors).length === 0) {
             try {
@@ -112,12 +103,22 @@ export default function SignUp() {
                     },
                     body: JSON.stringify({
                         ...formData,
-                        // captchaToken: recaptchaToken,
+                        recaptchaToken,
                     }),
                 });
 
+                const data = await response.json();
                 if (response.ok) {
-                    navigate('/home');
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        alert(data.message);
+                        setFormData({
+                            email: '',
+                            password: '',
+                        });
+                        setRecaptchaToken(null);
+                    }
                 } else {
                     const errorData = await response.json();
                     if (errorData.message === 'Email is already registered.') {
@@ -130,18 +131,18 @@ export default function SignUp() {
                             contactNumber: '',
                             password: '',
                         });
-                        // setRecaptchaToken(null);
+                        setRecaptchaToken(null);
                         // setRecaptchaKey(prev => prev + 1);
                     } else {
                         setErrors({ submit: errorData.message || 'Failed to sign up. Please try again.' });
-                        // setRecaptchaToken(null);
+                        setRecaptchaToken(null);
                         // setRecaptchaKey(prev => prev + 1);
                     }
                 }
             } catch (error) {
                 console.error('Signup error:', error);
                 setErrors({ submit: 'Failed to sign up. Please try again.' });
-                // setRecaptchaToken(null);
+                setRecaptchaToken(null);
                 // setRecaptchaKey(prev => prev + 1);
             }
         } else {
@@ -242,17 +243,13 @@ export default function SignUp() {
                     {errors.password && <div className={styles.errorMessage}>{errors.password}</div>}
                 </div>
 
-                {/* <div className={styles.recaptchaContainer}>
+                <div className={styles.recaptchaContainer}>
                     <ReCAPTCHA
-                        key={recaptchaKey}
-                        sitekey="6LeL8boqAAAAACEg5U0RED9vGW9j-TqzdrZsKjWg"
+                        sitekey="6Lc5z7oqAAAAAO6FPsxuAg88x_aR7b64KQTKYxtf"
                         onChange={handleRecaptchaChange}
                     />
-                    {errors.recaptcha && <div className={styles.errorMessage}>{errors.recaptcha}</div>}
-                </div> */}
-
-                {/* {errors.submit && <div className={styles.errorMessage}>{errors.submit}</div>} */}
-
+                </div>
+                {errors.submit && <div className={styles.errorMessage}>{errors.submit}</div>}
                 <div>
                     <button type="submit" className={styles.submitButton}>
                         Sign Up

@@ -6,11 +6,13 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const session = require('express-session'); 
 const MongoStore = require('connect-mongo');
-const uuid = require('uuid');
 const app = express();
-
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const DB_URI = 'mongodb+srv://Mehul:Mehul293645@techmartiiith.47mlw.mongodb.net/?retryWrites=true&w=majority&appName=TechMartIIITh';
-
+const API_KEY = "AIzaSyCN0BByLHITqEzt3EQ-BLawAVaN7CQ-x1U";
+const genAI = new GoogleGenerativeAI(API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const xml2js = require('xml2js');
 app.use(session({
     secret: 'your-secret-key',
     resave: false,
@@ -45,6 +47,7 @@ const userSchema = new mongoose.Schema({
     age: { type: Number, required: true },
     contactNumber: { type: String, required: true },
     password: { type: String, required: true },
+    reviews: [{ type: String, required: true }],
 });
 
 const productSchema = new mongoose.Schema({
@@ -52,7 +55,8 @@ const productSchema = new mongoose.Schema({
     price: { type: Number, required: true },
     description: { type: String, required: true },
     category: { type: String, required: true },
-    sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+    sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    
 });
 const cartSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -68,6 +72,8 @@ const orderSchema = new mongoose.Schema({
     isDelivered: { type: Boolean, default: false },
     orderDate: { type: Date, default: Date.now }
 });
+const CAS_URL = 'https://login.iiit.ac.in/cas';
+const SERVICE_URL = 'http://localhost:3000/api/cas/validate';
 
 const Order = mongoose.model('Order', orderSchema);
 const Cart = mongoose.model('Cart', cartSchema);
@@ -82,25 +88,67 @@ const isAuthenticated = (req, res, next) => {
     }
 };
 
-app.post('/signup', async (req, res) => {
-    const { firstName, lastName, email, age, contactNumber, password } = req.body;
+/**
+ * Generate a response from the AI model
+ * @param {string} prompt - User query or message
+ * @param {string[]} sessionHistory - Previous chat history of the session
+ * @returns {Promise<string>} - AI's response text
+ */
+const getAIResponse = async (prompt, sessionHistory) => {
     try {
+        const fullPrompt = sessionHistory.join("\n") + `\nUser: ${prompt}\nAI:`;
+        const result = await model.generateContent(fullPrompt);
+        return result.response.text();
+    } catch (error) {
+        console.error("Error generating AI response:", error);
+        return "I'm sorry, I couldn't process your request. Please try again later.";
+    }
+};
+
+app.post("/api/chat", async (req, res) => {
+    const { prompt } = req.body;
+    if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required." });
+    }
+    if (!req.session.chatHistory) {
+        req.session.chatHistory = [];
+    }
+    try {
+        const response = await getAIResponse(prompt, req.session.chatHistory);
+        req.session.chatHistory.push(`User: ${prompt}`);
+        req.session.chatHistory.push(`AI: ${response}`);
+        res.json({ response });
+    } catch (error) {
+        console.error("Error handling chat request:", error);
+        res.status(500).json({ error: "Failed to process chat request." });
+    }
+});
+
+app.post("/api/chat/reset", (req, res) => {
+    if (req.session) {
+        req.session.chatHistory = [];
+    }
+    res.json({ message: "Chat history reset successfully." });
+});
+
+
+app.post('/signup', async (req, res) => {
+    const { firstName, lastName, email, age, contactNumber, password, recaptchaToken } = req.body;
+    try {
+        const recaptchaResponse = await axios.post(
+            `https://www.google.com/recaptcha/api/siteverify?secret=6Lc5z7oqAAAAAIsvrCUo0yB4f316Hou_7iIj-Ty-&response=${recaptchaToken}`
+        );
+        if (!recaptchaResponse.data.success) {
+            return res.status(400).json({ message: 'Invalid reCAPTCHA' });
+        }
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'Email is already registered.' });
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({
-            firstName,
-            lastName,
-            email,
-            age,
-            contactNumber,
-            password: hashedPassword
-        });
-        await newUser.save();
-        req.session.userId = newUser._id;
-        res.status(201).json({ message: 'Signup successful!' });
+        req.session.pendingEmail = email;
+        req.session.pendingUser = { firstName, lastName, email, age, contactNumber, password };
+        const serviceURL = encodeURIComponent('http://localhost:3000/api/Signup/cas/validate');
+        return res.json({ redirectUrl: `https://login.iiit.ac.in/cas/login?service=${serviceURL}` });
     } catch (error) {
         console.error('Error during signup:', error);
         res.status(500).json({
@@ -109,11 +157,60 @@ app.post('/signup', async (req, res) => {
         });
     }
 });
+app.get('/api/Signup/cas/validate', async (req, res) => {
+    const ticket = req.query.ticket;
+    const serviceURL = 'http://localhost:3000/api/Signup/cas/validate';
+    if (!ticket) {
+        return res.redirect('/');
+    }
+    try {
+        const validateURL = `https://login.iiit.ac.in/cas/serviceValidate?ticket=${ticket}&service=${encodeURIComponent(serviceURL)}`;
+        const response = await axios.get(validateURL);
+        const parser = new xml2js.Parser();
+        const result = await parser.parseStringPromise(response.data);
+        if (result['cas:serviceResponse']['cas:authenticationSuccess']) {
+            const casUser = result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:user'][0];
+            const pendingEmail = req.session.pendingEmail;
+            const pendingUser=req.session.pendingUser;
+            req.session.pendingEmail = undefined;
+            req.session.pendingUser = undefined;
+            if (!pendingEmail) {
+                return res.redirect('/');
+            }
+            // console.log(casUser);
+            // console.log(pendingEmail);
+            if (casUser === pendingEmail) {
+                
+                const hashedPassword = await bcrypt.hash(pendingUser.password, 10);
+                const newUser = new User({
+                    firstName: pendingUser.firstName,
+                    lastName: pendingUser.lastName,
+                    email: pendingUser.email,
+                    age: pendingUser.age,
+                    contactNumber: pendingUser.contactNumber,
+                    password: hashedPassword
+                });
+                await newUser.save();
+                req.session.userId = newUser._id;
+                return res.redirect('/home');
+            }
+        }
+        return res.redirect('/');
+    } catch (error) {
+        console.error('CAS validation error:', error);
+        return res.redirect('/');
+    }
+});
 
 app.post('/api/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, recaptchaToken } = req.body;
     try {
-        
+        const recaptchaResponse = await axios.post(
+            `https://www.google.com/recaptcha/api/siteverify?secret=6Lc5z7oqAAAAAIsvrCUo0yB4f316Hou_7iIj-Ty-&response=${recaptchaToken}`
+        );
+        if (!recaptchaResponse.data.success) {
+            return res.status(400).json({ message: 'Invalid reCAPTCHA' });
+        }
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'User not found' });
@@ -122,19 +219,61 @@ app.post('/api/login', async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
-        req.session.userId = user._id;
-        res.status(200).json({
-            message: 'Login successful',
-            user: {
-                id: user._id,
-                email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName
-            }
-        });
+        req.session.pendingEmail = email;
+        const serviceURL = encodeURIComponent('http://localhost:3000/api/cas/validate');
+        return res.json({ redirectUrl: `https://login.iiit.ac.in/cas/login?service=${serviceURL}` });
+
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Add this new endpoint to clear the session
+app.post('/api/clear-session', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Session destruction error:', err);
+            res.status(500).json({ message: 'Failed to clear session' });
+        } else {
+            res.json({ message: 'Session cleared' });
+        }
+    });
+});
+
+app.get('/api/cas/validate', async (req, res) => {
+    const ticket = req.query.ticket;
+    const serviceURL = 'http://localhost:3000/api/cas/validate';
+    if (!ticket) {
+        return res.redirect('/login');
+    }
+    try {
+        const validateURL = `https://login.iiit.ac.in/cas/serviceValidate?ticket=${ticket}&service=${encodeURIComponent(serviceURL)}`;
+        const response = await axios.get(validateURL);
+        const parser = new xml2js.Parser();
+        const result = await parser.parseStringPromise(response.data);
+        if (result['cas:serviceResponse']['cas:authenticationSuccess']) {
+            const casUser = result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:user'][0];
+            const pendingEmail = req.session.pendingEmail;
+            req.session.pendingEmail = undefined;
+            if (!pendingEmail ) {
+                return res.redirect('/login');
+            }
+            // console.log(casUser);
+            // console.log(pendingEmail);
+            if (casUser === pendingEmail) {
+                const user = await User.findOne({ email: pendingEmail });
+                if (!user) {
+                    return res.redirect('/login');
+                }
+                req.session.userId = user._id;
+                return res.redirect('/home');
+            }
+        }
+        return res.redirect('/login');
+    } catch (error) {
+        console.error('CAS validation error:', error);
+        return res.redirect('/login');
     }
 });
 
@@ -336,7 +475,8 @@ app.get('/api/product/:id', async (req, res) => {
             seller: {
                 firstName: seller.firstName,
                 lastName: seller.lastName,
-                email: seller.email
+                email: seller.email,
+                reviews:seller.reviews
             }
         });
     } catch (error) {
@@ -353,33 +493,33 @@ app.get('/api/cart', isAuthenticated, async (req, res) => {
         if (cartItems.length > 0) {
             const cartItemsWithProducts = await Cart.aggregate([
                 {
-                    $match: { userId: new mongoose.Types.ObjectId(req.session.userId) } // Ensure userId is converted to ObjectId
+                    $match: { userId: new mongoose.Types.ObjectId(req.session.userId) } 
                 },
                 {
                     $lookup: {
-                        from: 'products', // The name of the `Product` collection
-                        localField: 'productId', // Field in `Cart`
-                        foreignField: '_id', // Field in `Product`
+                        from: 'products', 
+                        localField: 'productId', 
+                        foreignField: '_id', 
                         as: 'product'
                     }
                 },
                 {
-                    $unwind: '$product' // Deconstruct the `product` array for each cart item
+                    $unwind: '$product'
                 },
                 {
                     $lookup: {
-                        from: 'users', // The name of the `User` collection
-                        localField: 'product.sellerId', // Field in `Product`
-                        foreignField: '_id', // Field in `User`
+                        from: 'users',
+                        localField: 'product.sellerId', 
+                        foreignField: '_id',
                         as: 'seller'
                     }
                 },
                 {
-                    $unwind: '$seller' // Deconstruct the `seller` array for each cart item
+                    $unwind: '$seller'
                 },
                 {
                     $project: {
-                        _id: 1, // Keep the cart item ID
+                        _id: 1, 
                         userId: 1,
                         productId: 1,
                         quantity: 1,
@@ -457,7 +597,7 @@ app.put('/api/cart/update', isAuthenticated, async (req, res) => {
         // console.log(productId);
         const cartItem = await Cart.findOneAndUpdate(
             {
-                userId: req.session.userId, // Ensure this matches how userId is stored
+                userId: req.session.userId, 
                 productId:(productId)
             },
             { quantity },
@@ -521,12 +661,14 @@ app.post('/api/orders', isAuthenticated, async (req, res) => {
         session.startTransaction();
         const orders = await Promise.all(cartItems.map(async (item) => {
             const product = await Product.findById(item.productId);
+            otp = Math.floor(100000 + Math.random() * 900000).toString()
+            const hashedOtp = await bcrypt.hash(otp, 10);
             const order = new Order({
                 userId: req.session.userId,
                 productId: item.productId,
                 sellerId: product.sellerId, 
                 quantity: item.quantity,
-                otp: Math.floor(100000 + Math.random() * 900000).toString()
+                otp: hashedOtp
             });
             await order.save({ session });
             return order;
@@ -549,10 +691,53 @@ app.post('/api/orders', isAuthenticated, async (req, res) => {
     }
 });
 
+app.post('/api/reviews/add', async (req, res) => {
+    try {
+        const { orderId, review } = req.body;
+        const order = await Order.findById(orderId)
+            .populate('sellerId')
+            .populate('productId');
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        await User.findByIdAndUpdate(
+            order.sellerId._id,
+            { $push: { reviews: review } }
+        );
+
+        res.status(200).json({ message: 'Review added successfully' });
+    } catch (error) {
+        console.error('Error adding review:', error);
+        res.status(500).json({ message: 'Error adding review' });
+    }
+});
+
+app.post('/api/orders/:orderId/regenerate-otp', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        const hashedOtp = await bcrypt.hash(newOtp, 10);
+        const updatedOrder = await Order.findByIdAndUpdate(
+            orderId,
+            { otp: hashedOtp },
+            { new: true }
+        );
+        if (!updatedOrder) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        res.status(200).json({
+            message: 'OTP regenerated successfully',
+            otp: newOtp
+        });
+    } catch (error) {
+        console.error('Error regenerating OTP:', error);
+        res.status(500).json({ message: 'Error regenerating OTP' });
+    }
+});
+
 app.get('/api/seller/undelivered-orders', async (req, res) => {
     try {
         const sellerId = req.session.userId;
-        // console.log(sellerId);
         const undeliveredOrders = await Order.find({
             sellerId: sellerId,
             isDelivered: false
@@ -572,7 +757,8 @@ app.post('/api/seller/confirm-delivery', async (req, res) => {
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
-        if (order.otp !== otp) {
+        const isMatch = await bcrypt.compare(otp, order.otp);
+        if (!isMatch) {
             return res.status(400).json({ message: 'Invalid OTP' });
         }
         order.isDelivered = true;

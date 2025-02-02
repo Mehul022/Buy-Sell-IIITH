@@ -88,6 +88,20 @@ const Product = () => {
                             <>
                                 <p>Name: {seller.firstName} {seller.lastName}</p>
                                 <p>Email: {seller.email}</p>
+
+                                {/* Seller Reviews Section */}
+                                <div className={styles.reviewsContainer}>
+                                    <h4>Seller Reviews</h4>
+                                    {seller.reviews && seller.reviews.length > 0 ? (
+                                        <div className={styles.reviewsBox}>
+                                            {seller.reviews.map((review, index) => (
+                                                <p key={index} className={styles.review}>{review}</p>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p>No reviews available</p>
+                                    )}
+                                </div>
                             </>
                         ) : (
                             <p>Seller information not available</p>

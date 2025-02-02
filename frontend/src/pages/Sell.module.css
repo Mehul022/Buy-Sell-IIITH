@@ -32,6 +32,10 @@ h1 {
     margin-bottom: 2.5vh;
 }
 
+.recaptchaContainer {
+    margin: 20px 0;
+}
+
 .form {
     display: flex;
     flex-direction: column;

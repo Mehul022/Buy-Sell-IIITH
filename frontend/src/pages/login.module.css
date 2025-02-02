@@ -8,6 +8,10 @@
     background: linear-gradient(135deg, #325672, #d9e3f0);
 }
 
+.recaptchaContainer {
+    margin: 20px 0;
+}
+
 .formWrapper {
     background: rgb(234, 225, 225);
     padding: 3vh 5%;

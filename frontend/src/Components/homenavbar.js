@@ -129,6 +129,9 @@ export default function Homenavbar(props) {
                                 <Link className="nav-link" to="/cart">My Cart</Link>
                             </li>
                             <li className="nav-item">
+                                <Link className="nav-link" to="/chatbot">Chatbot</Link>
+                            </li>
+                            <li className="nav-item">
                                 <button
                                     className="btn btn-outline-danger"
                                     onClick={handleLogout}
