@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "cas": "^0.0.3",
@@ -19,7 +20,9 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
+    "mongodb": "5.5",
     "mongoose": "^8.9.5",
-    "uuid": "^11.0.5"
+    "uuid": "^11.0.5",
+    "xml2js": "^0.6.2"
   }
 }
